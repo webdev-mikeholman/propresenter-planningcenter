@@ -1,0 +1,25 @@
+{
+	"serviceTimes": [
+		{
+			"day": "Saturday",
+			"time": "15:59:59",
+			"firstService": true
+		},
+		{
+			"day": "Saturday",
+			"time": "17:59:59",
+			"firstService": false
+		},
+		{
+			"day": "Sunday",
+			"time": "08:59:59",
+			"firstService": true
+		},
+		{
+			"day": "Sunday",
+			"time": "10:29:59",
+			"firstService": false
+		}
+	],
+	"specialServiceTimes": []
+}
