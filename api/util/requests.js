@@ -17,7 +17,12 @@ const requests = params => {
 			})
 			resolve(data.data)
 		} catch (err) {
-			console.log(err.response)
+			if (err.response.status !== 404) {
+				console.log('Found error in get')
+				console.log(err.response.status)
+				console.log(err.response.statusText)
+			}
+			resolve({error: `${err.response.status} - ${err.response.statusText}`})
 		}
 	})
 }
@@ -37,7 +42,10 @@ const post = params => {
 			})
 			resolve(data)
 		} catch (err) {
-			console.log(err.response)
+			console.log('Found error in post')
+			console.log(err.response.status)
+			console.log(err.response.statusText)
+			resolve({error: `${err.response.status} - ${err.response.statusText}`})
 		}
 	})
 }

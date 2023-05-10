@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 dotenv.config({'path': '../../../.env'})
 
 
-export class PlanningCenterModel {
+export default class PlanningCenterModel {
 	serviceId = 0
 	planId = 0
 	isDev = true
@@ -68,10 +68,12 @@ export class PlanningCenterModel {
 				await self.getPlanId()
 			}
 			const response = await requests(`/${self.serviceId}/plans/${self.planId}/live?include=controller`)
+			//console.log(response)
 			if (response.hasOwnProperty('included') && response.included.length > 0) {
 				resolve(response.included)
 			} else {
 				resolve({error: 'No Live Controller ID'})
+				self.setAPIUser()
 			}
 		})
 	}
@@ -93,10 +95,11 @@ export class PlanningCenterModel {
 					resolve(true)
 				}
 				else {
-					self.setAPIUser()
+					console.log('Need to set API user')
+					//self.setAPIUser()
 				}
 			} else {
-				resolve({error: 'No Live Controller ID'})
+				resolve({error: 'API user not set'})
 			}
 		})
 	}
@@ -133,7 +136,7 @@ export class PlanningCenterModel {
 				await self.getPlanId()
 			}
 
-			const response = await post(`/${self.serviceId}/plans/${self.planId}/live/go_to_next_item?include=current_item_time`)
+			const response = await post(`/${self.serviceId}/plans/${self.planId}/live/go_to_next_item`)
 			resolve(response)
 		})
 	}
@@ -149,18 +152,54 @@ export class PlanningCenterModel {
 				await self.getPlanId()
 			}
 
-			const response = await post(`/${self.serviceId}/plans/${self.planId}/live/go_to_previous_item?include=current_item_time`)
+			const response = await post(`/${self.serviceId}/plans/${self.planId}/live/go_to_previous_item`)
 			resolve(response)
+		})
+	}
+
+	//Retrieves the full list of items in today's service
+	getFullList() {
+		const self = this
+		return new Promise(async resolve => {
+			if (self.serviceId === 0) {
+				await self.getServiceId()
+			}
+			if (self.planId === 0) {
+				await self.getPlanId()
+			}
+
+			const response = await requests(`/${self.serviceId}/plans/${self.planId}/live/items`)
+			resolve(response)
+		})
+	}
+
+	//Retrieves the current item ID
+	getCurrentItemId() {// Testing when someone else is in control and no one is in control
+		const self = this
+		return new Promise(async resolve => {
+			if (self.serviceId === 0) {
+				await self.getServiceId()
+			}
+			if (self.planId === 0) {
+				await self.getPlanId()
+			}
+			try {
+				const response = await requests(`/${self.serviceId}/plans/${self.planId}/live/current_item_time`)
+				resolve(response)
+			} catch (err) {
+				console.log(err.status)
+			}
+
 		})
 	}
 
 }
 
-// set for testing purposes
+//set for testing purposes
 // async function init() {
-// 	const pc = new PlanningCenter()
+// 	const pc = new PlanningCenterModel()
 // 	serviceId = await pc.getServiceId()
 // 	planId = await pc.getPlanId()
+// 	await pc.getCurrentItemId()
 // }
-
 //init()

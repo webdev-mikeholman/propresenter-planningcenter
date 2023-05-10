@@ -1,11 +1,21 @@
 import {ProPresenterModel} from '../../model/proPresenter/proPresenter.model.js'
 import {DateTime} from 'luxon'
+import {EventEmitter} from 'events'
 
 const prop = {}
-export default class ProPresenterController {
+export default class ProPresenterController extends EventEmitter {
 	setList = []
+	sermonSlideCount = 0
 	constructor() {
+		super()
 		this.prop = new ProPresenterModel
+		this.prop.on('newSlide', (data) => {
+			console.log('slide')
+			console.log(data)
+			if (data.hasOwnProperty('presentationPath') && data.presentationPath === '0:9') {
+				this.setRemainingSermonSlides(data.slideIndex)
+			}
+		})
 	}
 	getFullPlayList() {
 		const self = this
@@ -115,11 +125,49 @@ export default class ProPresenterController {
 
 	}
 
+	getSermonSlideId() {
+		const self = this
+		return new Promise(async resolve => {
+			const fullList = await self.getFullPlayList()
+			fullList[0].playlist.filter(item => {
+				if (item.playlistItemName.indexOf('Sermon - ') > -1) {
+					resolve(item.playlistItemLocation)
+				}
+			})
+		})
+	}
+
+	getSermonSlideCount() {
+		const self = this
+		return new Promise(async resolve => {
+			const slideId = await self.getSermonSlideId()
+			const count = await self.prop.getSermonSlideCounts(slideId)
+			self.sermonSlideCount = count
+			console.log(count)
+			resolve(true)
+		})
+	}
+
+	setRemainingSermonSlides(data) {
+		console.log(this.sermonSlideCount)
+		console.log(data)
+		console.log(this.sermonSlideCount - (data + 1))
+	}
+
+
+	async getCurrentSlide() {
+		console.log('Getting current slide')
+		await this.prop.getCurrentSlide()
+		console.log('Got current slide')
+	}
+
 }
 
 async function init() {
 	const prop = new ProPresenterController()
-	//console.log(await prop.getPostServiceOrderId())
+	await prop.getSermonSlideCount()
+	console.log('got count')
+	console.log(await prop.getCurrentSlide())
 }
 
 init()

@@ -1,4 +1,4 @@
-import {PlanningCenterModel} from '../../model/planningCenter/planningCenter.model.js'
+import PlanningCenterModel from '../../model/planningCenter/planningCenter.model.js'
 const pc = {}
 export default class PlanningCenterController {
 	ApiInControl = false
@@ -38,25 +38,21 @@ export default class PlanningCenterController {
 	nextItem() {
 		const self = this
 		return new Promise(async resolve => {
-			console.log(self.ApiInControl)
 			if (self.ApiInControl) {
 				const response = await self.pc.goToNext()
-				console.log(response.included[0].relationships)
-				resolve(response)
-			}
-			else {
+				resolve(true)
+			} else {
+				self.ApiInControl = true
 				await self.setAPIControl()
-				self.nextItem()
+				await self.nextItem()
 			}
 		})
 	}
 	previousItem() {
 		const self = this
 		return new Promise(async resolve => {
-			console.log(self.ApiInControl)
 			if (self.ApiInControl) {
 				const response = await self.pc.goToPrevious()
-				console.log(response.included[0].relationships)
 				resolve(response)
 			}
 			else {
@@ -68,9 +64,9 @@ export default class PlanningCenterController {
 }
 
 
-async function init() {
-	const pc = new PlanningCenterController
-	//pc.setAPIControl()
-}
+// async function init() {
+// 	const pc = new PlanningCenterController
+// 	pc.setAPIControl()
+// }
 
-init()
+// init()
