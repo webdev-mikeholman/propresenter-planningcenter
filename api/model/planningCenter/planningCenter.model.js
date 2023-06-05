@@ -1,3 +1,12 @@
+/**
+ * Planning Center Model
+ * Connecting to Planning Center to retrieve data
+ * 
+ * by Mike Holman
+ * webdev.mikeholman@gmail.com
+ * Copyright (c) 2023
+ */
+
 import {requests, post} from '../../util/requests.js'
 import dotenv from 'dotenv'
 dotenv.config({'path': '../../../.env'})

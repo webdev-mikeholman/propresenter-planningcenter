@@ -1,3 +1,12 @@
+/**
+ * ProPresenter Model
+ * Connecting to ProPresenter to retrieve data
+ * 
+ * by Mike Holman
+ * webdev.mikeholman@gmail.com
+ * Copyright (c) 2023
+ */
+
 import WebSocket from 'ws'
 import dotenv from 'dotenv'
 import {EventEmitter} from 'events'

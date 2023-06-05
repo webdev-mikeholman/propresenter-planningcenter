@@ -1,3 +1,12 @@
+/**
+ * Planning Center Controller
+ * Gets or changes status
+ * 
+ * by Mike Holman
+ * webdev.mikeholman@gmail.com
+ * Copyright (c) 2023
+ */
+
 import PlanningCenterModel from '../../model/planningCenter/planningCenter.model.js'
 const pc = {}
 export default class PlanningCenterController {

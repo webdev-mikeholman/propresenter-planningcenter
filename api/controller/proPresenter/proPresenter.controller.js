@@ -1,3 +1,13 @@
+/**
+ * ProPresenter Controller
+ * Gets slide info from ProPresenter
+ * 
+ * by Mike Holman
+ * webdev.mikeholman@gmail.com
+ * Copyright (c) 2023
+ */
+
+
 import {ProPresenterModel} from '../../model/proPresenter/proPresenter.model.js'
 import {DateTime} from 'luxon'
 import {EventEmitter} from 'events'
@@ -146,12 +156,6 @@ export default class ProPresenterController extends EventEmitter {
 			console.log(count)
 			resolve(true)
 		})
-	}
-
-	setRemainingSermonSlides(data) {
-		console.log(this.sermonSlideCount)
-		console.log(data)
-		console.log(this.sermonSlideCount - (data + 1))
 	}
 
 

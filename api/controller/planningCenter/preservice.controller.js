@@ -1,3 +1,12 @@
+/**
+ * PreService Controller
+ * Moves Planning Center to the PreService item
+ * 
+ * by Mike Holman
+ * webdev.mikeholman@gmail.com
+ * Copyright (c) 2023
+ */
+
 import PlanningCenterModel from '../../model/planningCenter/planningCenter.model.js'
 import PlanningCenterController from './planningCenter.controller.js'
 const pcm = {}

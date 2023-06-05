@@ -1,12 +1,12 @@
 {
 	"serviceTimes": [
 		{
-			"day": "Wednesday",
-			"time": "12:03:00",
+			"day": "Monday",
+			"time": "13:55:00",
 			"firstService": true
 		},
 		{
-			"day": "Wednesday",
+			"day": "Monday",
 			"time": "18:00:00",
 			"firstService": false
 		},

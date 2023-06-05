@@ -1,3 +1,13 @@
+/**
+ * Master Controller
+ * Controlling when Planning Center should change to next item
+ * 
+ * by Mike Holman
+ * webdev.mikeholman@gmail.com
+ * Copyright (c) 2023
+ */
+
+
 //console.log('CHILD CREATED!', process.pid);
 import fs from 'fs';
 const schedule = JSON.parse(fs.readFileSync('../../model/schedule/schedule.json'))
@@ -35,8 +45,10 @@ export default class MasterController {
 
 		if (this.serviceToday) {
 			const nextServiceTime = this.getNextServiceTime()
+
 			const startTime = DT.fromISO(this.today + 'T' + nextServiceTime.time)
 			const preServiceStartTime = startTime.minus({minutes: 29, seconds: 59})
+
 			const bandOpenerInfo = await ps.getBandOpenerInfo()
 			let bandSongLength = 0
 
@@ -47,6 +59,7 @@ export default class MasterController {
 			const countdown = setInterval(async () => {
 				const now = DT.now()
 				const remainingTime = startTime.diff(now)
+				//console.log(remainingTime.toFormat('mm:ss'))
 				if (remainingTime === 0) {
 					console.log('Start live service')
 					clearInterval(countdown)

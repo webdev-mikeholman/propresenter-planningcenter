@@ -1,3 +1,13 @@
+/**
+ * Request Utility
+ * Connecting to Planning Center to
+ * make requests to change to another item
+ * 
+ * by Mike Holman
+ * webdev.mikeholman@gmail.com
+ * Copyright (c) 2023
+ */
+
 import axios from 'axios'
 import dotenv from 'dotenv'
 dotenv.config({path: '../../../.env'})
