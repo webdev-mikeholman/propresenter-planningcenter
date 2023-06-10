@@ -20,13 +20,21 @@ function init() {
 		});
 	}
 	else {
-		// server code;
-		const child = fork('./controller/master/master.controller');
-		child.send('Start service');
+		try {
+			// server code;
+			const child = fork('./controller/master/master.controller');
+			child.send('Start service');
 
-		child.on('exit', () => {
-			process.kill(newPID);
-			init();
-		});
+			child.on('exit', () => {
+				console.log('exited')
+				process.kill(newPID);
+				init();
+			});
+		} catch (e) {
+			console.log('Error with child')
+			console.log(e.message);
+		}
 	}
 }
+
+init()
