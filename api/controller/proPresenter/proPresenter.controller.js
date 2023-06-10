@@ -11,26 +11,16 @@
 import {ProPresenterModel} from '../../model/proPresenter/proPresenter.model.js'
 import {DateTime} from 'luxon'
 import {EventEmitter} from 'events'
+const ppm = new ProPresenterModel()
 
-const prop = {}
 export default class ProPresenterController extends EventEmitter {
-	setList = []
-	sermonSlideCount = 0
 	constructor() {
 		super()
-		this.prop = new ProPresenterModel
-		this.prop.on('newSlide', (data) => {
-			console.log('slide')
-			console.log(data)
-			if (data.hasOwnProperty('presentationPath') && data.presentationPath === '0:9') {
-				this.setRemainingSermonSlides(data.slideIndex)
-			}
-		})
 	}
 	getFullPlayList() {
 		const self = this
 		return new Promise(async resolve => {
-			const fullList = await self.prop.getFullPlayLists()
+			const fullList = await ppm.getFullPlayLists()
 			resolve(fullList.playlistAll)
 		})
 	}
@@ -87,6 +77,25 @@ export default class ProPresenterController extends EventEmitter {
 		})
 	}
 
+	getFirstSongTitle() {
+		const self = this
+		return new Promise(async resolve => {
+			try {
+				let songName = null
+				const thisWeekendPlaylist = await self.getThisWeekendPlayList()
+				thisWeekendPlaylist.playlist.filter(item => {
+
+					if (item.playlistItemLocation === '0:1') {
+						songName = item.playlistItemName?.substring(0, item.playlistItemName.indexOf('-'))
+					}
+				})
+				resolve(songName.trim())
+			} catch (e) {
+				console.log(e)
+			}
+		})
+	}
+
 	getDateForNextSaturday() {
 		let isSaturday = false
 		let isSunday = false
@@ -116,11 +125,11 @@ export default class ProPresenterController extends EventEmitter {
 		let isSaturday = false
 		let isSunday = false
 		let sundayDate = ''
-		const today = DateTime.now().toFormat('d')
+		const today = DateTime.now().toFormat('c')
 		if (today === 6) {
 			isSaturday = true
 		}
-		else if (today === 6) {
+		else if (today === 7) {
 			isSunday = true
 		}
 
@@ -135,43 +144,26 @@ export default class ProPresenterController extends EventEmitter {
 
 	}
 
-	getSermonSlideId() {
+
+	getCurrentSlide() {
 		const self = this
 		return new Promise(async resolve => {
-			const fullList = await self.getFullPlayList()
-			fullList[0].playlist.filter(item => {
-				if (item.playlistItemName.indexOf('Sermon - ') > -1) {
-					resolve(item.playlistItemLocation)
+			await ppm.getCurrentSlide()
+			ppm.on('newSlides', (slide) => {
+				if (slide.hasOwnProperty('slideIndex')) {
+					self.emit('newSlide', slide)
 				}
 			})
-		})
-	}
-
-	getSermonSlideCount() {
-		const self = this
-		return new Promise(async resolve => {
-			const slideId = await self.getSermonSlideId()
-			const count = await self.prop.getSermonSlideCounts(slideId)
-			self.sermonSlideCount = count
-			console.log(count)
 			resolve(true)
 		})
-	}
-
-
-	async getCurrentSlide() {
-		console.log('Getting current slide')
-		await this.prop.getCurrentSlide()
-		console.log('Got current slide')
 	}
 
 }
 
 async function init() {
 	const prop = new ProPresenterController()
-	await prop.getSermonSlideCount()
-	console.log('got count')
-	console.log(await prop.getCurrentSlide())
+	await ppm.getCurrentSlide()
 }
 
-init()
+// Used for testing
+//init()

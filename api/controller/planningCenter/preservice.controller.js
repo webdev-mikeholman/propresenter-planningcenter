@@ -68,6 +68,7 @@ export default class PreServiceController extends PlanningCenterController {
 	startPrelude() {
 		const self = this
 		return new Promise(async resolve => {
+			await self.isApiUserInControl()
 			const preludeId = await self.getPreludeId()
 			const currentItemId = await self.pcm.getCurrentItemId()
 			if (currentItemId.hasOwnProperty('error')) {
@@ -85,6 +86,7 @@ export default class PreServiceController extends PlanningCenterController {
 	startBandPrelude() {
 		const self = this
 		return new Promise(async resolve => {
+			await self.isApiUserInControl()
 			const nextItemInfo = await self.nextItem()
 			resolve(true)
 		})
@@ -92,9 +94,10 @@ export default class PreServiceController extends PlanningCenterController {
 
 }
 
-// async function init() {
-// 	const pc = new PreServiceController
-// 	await pc.startPrelude()
-// }
+async function init() {
+	const pc = new PreServiceController
+	await pc.startPrelude()
+}
 
+// Used for testing
 // init()

@@ -15,10 +15,11 @@ dotenv.config({'path': '../../../.env'})
 export default class PlanningCenterModel {
 	serviceId = 0
 	planId = 0
-	isDev = true
+	isDev = process.env.ISDEV
+
 	campusName = ''
 	constructor() {
-		if (this.isDev) {
+		if (this.isDev === 'true') {
 			this.campusName = process.env.PLANCTR_DEV_CAMPUS_NAME
 		} else {
 			this.campusName = process.env.PLANCTR_CAMPUS_NAME
@@ -70,6 +71,7 @@ export default class PlanningCenterModel {
 	getLiveControllerUser() {
 		const self = this
 		return new Promise(async resolve => {
+			let data = null
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -77,13 +79,13 @@ export default class PlanningCenterModel {
 				await self.getPlanId()
 			}
 			const response = await requests(`/${self.serviceId}/plans/${self.planId}/live?include=controller`)
-			//console.log(response)
-			if (response.hasOwnProperty('included') && response.included.length > 0) {
-				resolve(response.included)
+			if (response.hasOwnProperty('links') && response.relationships.controller.data !== undefined && response.relationships.controller.data !== null) {
+				data = response.relationships.controller.data.id
 			} else {
-				resolve({error: 'No Live Controller ID'})
-				self.setAPIUser()
+				//resolve({error: 'No Live Controller ID'})
+				//self.setAPIUser()
 			}
+			resolve(data)
 		})
 	}
 
@@ -100,7 +102,7 @@ export default class PlanningCenterModel {
 
 			const response = await post(`/${self.serviceId}/plans/${self.planId}/live/toggle_control?include=controller`)
 			if (response.data.hasOwnProperty('links') && response.data.links.controller !== null) {
-				if (response.included[0].id === process.env.PLANCTR_API_ID) {
+				if (response.data.relationships.controller.data.id === process.env.PLANCTR_API_ID) {
 					resolve(true)
 				}
 				else {
@@ -114,7 +116,7 @@ export default class PlanningCenterModel {
 	}
 
 	//Sets the live controller user to no one
-	releaseAPIUser() {  // @NOTE:  Need to set a counter for error attempts
+	releaseAPIUser() {
 		const self = this
 		return new Promise(async resolve => {
 			if (self.serviceId === 0) {
@@ -183,7 +185,7 @@ export default class PlanningCenterModel {
 	}
 
 	//Retrieves the current item ID
-	getCurrentItemId() {// Testing when someone else is in control and no one is in control
+	getCurrentItemId() {
 		const self = this
 		return new Promise(async resolve => {
 			if (self.serviceId === 0) {
@@ -204,11 +206,13 @@ export default class PlanningCenterModel {
 
 }
 
-//set for testing purposes
-// async function init() {
-// 	const pc = new PlanningCenterModel()
-// 	serviceId = await pc.getServiceId()
-// 	planId = await pc.getPlanId()
-// 	await pc.getCurrentItemId()
-// }
+
+async function init() {
+	const pc = new PlanningCenterModel()
+	serviceId = await pc.getServiceId()
+	planId = await pc.getPlanId()
+	await pc.getCurrentItemId()
+}
+
+// Used for testing
 //init()

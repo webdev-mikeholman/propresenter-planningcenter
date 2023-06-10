@@ -7,44 +7,39 @@
  * Copyright (c) 2023
  */
 
-import WebSocket from 'ws'
+
 import dotenv from 'dotenv'
 import {EventEmitter} from 'events'
+import {ws} from '../../util/requests.js'
 
 dotenv.config({'path': '../../../.env'})
-let isDev = true
-const webSocketURI = ''
-const ws = ''
+let propData = {}
 
 export class ProPresenterModel extends EventEmitter {
 	constructor() {
 		super()
-		this.getWebSocket()
-		this.ws = new WebSocket(this.webSocketURI)
 	}
 
-	getWebSocket() {
+	getPropData() {
 		return new Promise(async resolve => {
-			if (!isDev) {
-				this.webSocketURI = `ws://${process.env.PRO_PRESENTER_IP_REG}:${process.env.PRO_PRESENTER_PORT_REG}/${process.env.PRO_PRESENTER_TYPE_REG}`
-			} else {
-				this.webSocketURI = `ws://${process.env.PRO_PRESENTER_IP_LOCAL}:${process.env.PRO_PRESENTER_PORT_LOCAL}/${process.env.PRO_PRESENTER_TYPE_LOCAL}`
-			}
-			resolve(this.webSocketURI)
+			const response = await ws()
+			this.propData = response
+			resolve(true)
 		})
 	}
 
 	getFullPlayLists() {
 		return new Promise(async resolve => {
-			await this.init()
-			this.ws.send(
+			if (typeof this.propData === 'undefined' || this.propData.readyState !== this.propData.OPEN) {
+				await this.init()
+			}
+			this.propData.send(
 				JSON.stringify({
 					action: 'playlistRequestAll'
 				})
 			)
-			this.ws.on('message', async message => {
-				let data = JSON.parse(message)
-
+			this.propData.on('message', async playlist => {
+				let data = JSON.parse(playlist)
 				if (data.hasOwnProperty('playlistAll')) {
 					resolve(data)
 				}
@@ -54,51 +49,48 @@ export class ProPresenterModel extends EventEmitter {
 
 	getCurrentSlide() {
 		return new Promise(async resolve => {
-			//await this.init() // @TODO: Need to check if already initialized
-			this.ws.send(
+			let hasEmitted = false
+			if (typeof this.propData === 'undefined' || this.propData.readyState !== this.propData.OPEN) {
+				await this.init()
+			}
+			this.propData.send(
 				JSON.stringify({
 					action: 'presentationCurrent'
 				})
 			)
-			this.ws.on('message', async message => {
+			this.propData.on('message', async message => {
 				let data = JSON.parse(message)
-				console.log(data)
-				this.emit('newSlide', data)
-			})
-
-		})
-	}
-
-	getSermonSlideCounts(sermonSlideId = null) {
-		return new Promise(async resolve => {
-			this.ws.send(
-				JSON.stringify({
-					action: 'presentationRequest',
-					presentationPath: sermonSlideId
-				})
-			)
-			this.ws.on('message', async message => {
-				let totalCount = 0
-				let data = JSON.parse(message)
-				if (data.hasOwnProperty('presentation') && data.presentation.hasOwnProperty('presentationSlideGroups')) {
-					totalCount = data.presentation.presentationSlideGroups[0].groupSlides.length
+				if (data.hasOwnProperty('slideIndex')) {
+					// ProPresenter sends 2 of everything.  This makes sure only one slide goes through
+					if (!hasEmitted) {
+						this.emit('newSlides', data)
+					}
+					hasEmitted = !hasEmitted
 				}
-				resolve(totalCount)
-			})
 
+			})
+			resolve(true)
 		})
 	}
 
 	init() {
-		return new Promise(resolve => {
-			this.ws.on('open', async () => {
-				this.ws.send(
+		const self = this
+		return new Promise(async resolve => {
+			if (typeof self.propData === 'undefined') {
+				await self.getPropData()
+			}
+			self.propData.on('open', async () => {
+				self.propData.send(
 					JSON.stringify({
 						action: 'authenticate',
 						protocol: '701',
 						password: 'controller'
 					})
 				)
+				self.propData.on('error', err => {
+					console.log('Error from WS')
+					console.error(err)
+				})
 				resolve(true)
 			})
 		})
@@ -107,9 +99,11 @@ export class ProPresenterModel extends EventEmitter {
 
 async function init() {
 	const prop = new ProPresenterModel()
-	console.log(await prop.getCurrentSlide())
+	//await prop.init()
+
+	await prop.getCurrentSlide()
 }
 
 
-
+// Used for testing
 //init()
