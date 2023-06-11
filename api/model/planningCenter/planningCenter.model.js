@@ -65,8 +65,6 @@ export default class PlanningCenterModel {
 		})
 	}
 
-	//@TODO: Need to get song list.  Need order of song list.  Need do be able to switch to the right slides (e.g. Prelude, Prelude-Band, and Postlude)
-
 	//Retrieves the current active user controlling live updates
 	getLiveControllerUser() {
 		const self = this
@@ -81,16 +79,13 @@ export default class PlanningCenterModel {
 			const response = await requests(`/${self.serviceId}/plans/${self.planId}/live?include=controller`)
 			if (response.hasOwnProperty('links') && response.relationships.controller.data !== undefined && response.relationships.controller.data !== null) {
 				data = response.relationships.controller.data.id
-			} else {
-				//resolve({error: 'No Live Controller ID'})
-				//self.setAPIUser()
 			}
 			resolve(data)
 		})
 	}
 
 	//Sets the live controller user to the API user
-	setAPIUser() {  // @NOTE:  Need to set a counter for error attempts
+	setAPIUser() {
 		const self = this
 		return new Promise(async resolve => {
 			if (self.serviceId === 0) {
@@ -107,7 +102,6 @@ export default class PlanningCenterModel {
 				}
 				else {
 					console.log('Need to set API user')
-					//self.setAPIUser()
 				}
 			} else {
 				resolve({error: 'API user not set'})

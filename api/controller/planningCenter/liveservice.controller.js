@@ -22,6 +22,7 @@ export default class LiveServiceController extends PlanningCenterController {
 		super()
 	}
 
+	// Get the ProPresenter Pre Service slide ID
 	getPreludeId() {
 		const self = this
 		return new Promise(async resolve => {
@@ -35,6 +36,7 @@ export default class LiveServiceController extends PlanningCenterController {
 		})
 	}
 
+	// Start Live Service
 	startLiveService() {
 		const self = this
 		return new Promise(async resolve => {
@@ -52,6 +54,7 @@ export default class LiveServiceController extends PlanningCenterController {
 		})
 	}
 
+	// Watch for slide changes
 	watchProPresenter() {
 		const self = this
 		let currentSection = 0
@@ -65,7 +68,7 @@ export default class LiveServiceController extends PlanningCenterController {
 					const selectionId = Number((data.presentationPath).substring(2, data.presentationPath.length))
 					const slideIndex = data.slideIndex
 					console.log(`Section ${selectionId}`)
-					console.log(`Slide ${slideIndex}`)
+					console.log(`Slide ${slideIndex + 1}`)
 					if (selectionId > 1 && selectionId !== currentSection && selectionId > currentSection && slideIndex === 0 && selectionId < postSlideId) {
 						currentSection = selectionId
 						await self.nextItem()
@@ -85,7 +88,8 @@ export default class LiveServiceController extends PlanningCenterController {
 		})
 	}
 
-	getPostludeId() {  // Need to know when POSTLUDE starts in ProPresenter
+	// Get ProPresenter Post Service slide ID
+	getPostludeId() {
 		const self = this
 		return new Promise(async resolve => {
 			const response = await pcm.getFullList()
@@ -98,6 +102,7 @@ export default class LiveServiceController extends PlanningCenterController {
 		})
 	}
 
+	// Start Pre Service countdown
 	startPrelude() {
 		const self = this
 		return new Promise(async resolve => {
@@ -116,6 +121,7 @@ export default class LiveServiceController extends PlanningCenterController {
 		})
 	}
 
+	// Start Pre Service Band Countdown
 	startBandPrelude() {
 		const self = this
 		return new Promise(async resolve => {
@@ -133,4 +139,4 @@ async function init() {
 }
 
 // Used for testing
-init()
+//init()

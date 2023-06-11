@@ -14,12 +14,14 @@ import {ws} from '../../util/requests.js'
 
 dotenv.config({'path': '../../../.env'})
 let propData = {}
-
+const isDev = process.env.ISDEV
 export class ProPresenterModel extends EventEmitter {
 	constructor() {
 		super()
+		this.isDev = isDev
 	}
 
+	// Get ProPresenter Slide Information
 	getPropData() {
 		return new Promise(async resolve => {
 			const response = await ws()
@@ -28,6 +30,7 @@ export class ProPresenterModel extends EventEmitter {
 		})
 	}
 
+	// Get ProPresenter Full PlayList
 	getFullPlayLists() {
 		return new Promise(async resolve => {
 			if (typeof this.propData === 'undefined' || this.propData.readyState !== this.propData.OPEN) {
@@ -47,6 +50,7 @@ export class ProPresenterModel extends EventEmitter {
 		})
 	}
 
+	// Get Current Slide from ProPresenter
 	getCurrentSlide() {
 		return new Promise(async resolve => {
 			let hasEmitted = false
@@ -61,11 +65,15 @@ export class ProPresenterModel extends EventEmitter {
 			this.propData.on('message', async message => {
 				let data = JSON.parse(message)
 				if (data.hasOwnProperty('slideIndex')) {
-					// ProPresenter sends 2 of everything.  This makes sure only one slide goes through
-					if (!hasEmitted) {
+					if (this.isDev === 'true') {
+						// ProPresenter sends 2 of everything.  This makes sure only one slide goes through
+						if (!hasEmitted) {
+							this.emit('newSlides', data)
+						}
+						hasEmitted = !hasEmitted
+					} else {
 						this.emit('newSlides', data)
 					}
-					hasEmitted = !hasEmitted
 				}
 
 			})
@@ -101,7 +109,7 @@ async function init() {
 	const prop = new ProPresenterModel()
 	//await prop.init()
 
-	await prop.getCurrentSlide()
+	//await prop.getCurrentSlide()
 }
 
 

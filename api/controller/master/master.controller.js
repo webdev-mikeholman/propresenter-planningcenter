@@ -7,8 +7,6 @@
  * Copyright (c) 2023
  */
 
-
-//console.log('CHILD CREATED!', process.pid);
 import fs from 'fs';
 import path from 'path';
 import {fileURLToPath} from 'url';
@@ -24,6 +22,9 @@ const serviceToday = false
 const startPreService = false
 const startService = false
 const startPostService = false
+const serviceIsOver = true
+const firstService = ''
+const preserviceStarted = false
 const result = {}
 
 export default class MasterController {
@@ -40,12 +41,14 @@ export default class MasterController {
 		});
 		this.dayOfWeek = DT.now().toFormat('cccc')
 		this.today = DT.now().toFormat('yyyy-LL-dd')
+		this.preserviceStarted = preserviceStarted
+		this.serviceIsOver = serviceIsOver
 	}
 
 	// Verifies there are services 'today'
 	checkSchedules() {
 		return new Promise(async resolve => {
-			const startOffset = 3 // seconds
+			const startOffset = 3 // seconds Need to subtract time to match PropPresenter
 			const ps = new PreServiceController
 			schedule.serviceTimes.find(info => {
 				if (info.day === this.dayOfWeek) {
@@ -57,7 +60,7 @@ export default class MasterController {
 				const nextServiceTime = this.getNextServiceTime()
 				if (nextServiceTime !== undefined) {
 					const startTime = DT.fromISO(this.today + 'T' + nextServiceTime.time)
-					const preServiceStartTime = startTime.minus({minutes: 30, seconds: 6})
+					this.firstService = nextServiceTime.firstService
 
 					const bandOpenerInfo = await ps.getBandOpenerInfo()
 					let bandSongLength = 0
@@ -78,12 +81,15 @@ export default class MasterController {
 						} else if (remainingTime.toFormat('mm') == '00') {
 							console.log(remainingTime.toFormat('ss'))
 						} else {
-							if (remainingTime.toFormat('mm:ss') === '30:0' + startOffset.toString()) {
+							if ((this.firstService || (!this.firstService && this.serviceIsOver)) && remainingTime.toFormat('mm:ss') === '30:0' + startOffset.toString()) { // change 30:00 to variable and subtract time
 								console.log('Starting Prelude')
 								this.startPreService()
 							}
 
-							if (Number(remainingTime.toFormat('mm')) < 30 && Number(remainingTime.toFormat('ss')) > bandSongLength) {
+							if ((this.firstService || (!this.firstService && this.serviceIsOver)) && Number(remainingTime.toFormat('mm')) < 30 && Number(remainingTime.toFormat('ss')) > bandSongLength) {
+								if (this.preserviceStarted === false) {
+									this.startPreService()
+								}
 								console.log(remainingTime.toFormat('mm:ss'))
 							}
 
@@ -107,6 +113,7 @@ export default class MasterController {
 		return new Promise(async resolve => {
 			const ps = new PreServiceController
 			await ps.startPrelude()
+			this.preserviceStarted = true;
 			resolve(true)
 		})
 	}
@@ -120,19 +127,22 @@ export default class MasterController {
 		})
 	}
 
+	// Starts live service
 	startLiveService() {
 		return new Promise(async resolve => {
+			this.serviceIsOver = false
 			const ls = new LiveServiceController()
 			console.log('Starting LiveService')
-			const test = await ls.startLiveService()
-			console.log('Checking test', test)
+			await ls.startLiveService()
 			console.log('Watching LiveService')
 			await ls.watchProPresenter()
-			console.log('Done!');
+			this.serviceIsOver = true
+			console.log('Done!')
 			resolve('done')
 		})
 	}
 
+	// Get next scheduled service time
 	getNextServiceTime() {
 		const dayInfo = []
 		const now = DT.now()
@@ -156,7 +166,7 @@ async function init() {
 	const mc = new MasterController
 
 	// Used for testing
-	// mc.checkSchedules()
+	mc.checkSchedules()
 	//mc.startLiveService()
 }
 

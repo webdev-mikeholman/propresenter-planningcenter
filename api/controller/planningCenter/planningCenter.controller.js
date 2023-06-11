@@ -15,6 +15,8 @@ export default class PlanningCenterController extends EventEmitter {
 	constructor() {
 		super()
 	}
+
+	// Get the user currently controlling the live view
 	getUserInControl() {
 		const self = this
 		return new Promise(async resolve => {
@@ -22,6 +24,8 @@ export default class PlanningCenterController extends EventEmitter {
 			resolve(response)
 		})
 	}
+
+	// Set the API user as the live view controller
 	setAPIControl() {
 		const self = this
 		return new Promise(async resolve => {
@@ -34,12 +38,16 @@ export default class PlanningCenterController extends EventEmitter {
 			resolve(response)
 		})
 	}
+
+	// Release the API user as the live controller
 	releaseAPIControl() {
 		return new Promise(async resolve => {
 			const response = await pcm.releaseAPIUser()
 			resolve(response)
 		})
 	}
+
+	// Move the planning center to the next section
 	nextItem() {
 		const self = this
 		return new Promise(async resolve => {
@@ -53,6 +61,8 @@ export default class PlanningCenterController extends EventEmitter {
 			}
 		})
 	}
+
+	// Move the planning center to the previous section
 	previousItem() {
 		const self = this
 		return new Promise(async resolve => {
@@ -67,6 +77,7 @@ export default class PlanningCenterController extends EventEmitter {
 		})
 	}
 
+	// Get the current planning center section ID
 	getCurrentItemId() {
 		const self = this
 		return new Promise(async resolve => {
@@ -86,6 +97,7 @@ export default class PlanningCenterController extends EventEmitter {
 		})
 	}
 
+	// Get the first song ID
 	getFirstSongId(songName) {
 		const self = this
 		return new Promise(async resolve => {
@@ -100,6 +112,7 @@ export default class PlanningCenterController extends EventEmitter {
 		})
 	}
 
+	// Check to see if the API user is the live controller
 	isApiUserInControl() {
 		const self = this
 		return new Promise(async resolve => {

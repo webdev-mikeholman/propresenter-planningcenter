@@ -25,6 +25,7 @@ export default class ProPresenterController extends EventEmitter {
 		})
 	}
 
+	// Get the full list from Model
 	getThisWeekendPlayList() {
 		const self = this
 		return new Promise(async resolve => {
@@ -47,6 +48,7 @@ export default class ProPresenterController extends EventEmitter {
 		})
 	}
 
+	// Get the pre service slide ID
 	getPreServiceOrderId() {
 		const self = this
 		return new Promise(async resolve => {
@@ -62,6 +64,7 @@ export default class ProPresenterController extends EventEmitter {
 		})
 	}
 
+	// Get the post service slide ID
 	getPostServiceOrderId() {
 		const self = this
 		return new Promise(async resolve => {
@@ -77,6 +80,7 @@ export default class ProPresenterController extends EventEmitter {
 		})
 	}
 
+	// Get song title of the first song
 	getFirstSongTitle() {
 		const self = this
 		return new Promise(async resolve => {
@@ -96,6 +100,7 @@ export default class ProPresenterController extends EventEmitter {
 		})
 	}
 
+	// Get next Saturday's Date
 	getDateForNextSaturday() {
 		let isSaturday = false
 		let isSunday = false
@@ -104,7 +109,7 @@ export default class ProPresenterController extends EventEmitter {
 		if (today === 6) {
 			isSaturday = true
 		}
-		else if (today === 6) {
+		else if (today === 7) {
 			isSunday = true
 		}
 
@@ -121,6 +126,7 @@ export default class ProPresenterController extends EventEmitter {
 		return saturdayDate
 	}
 
+	// Get Next Sunday's date
 	getDateForNextSunday() {
 		let isSaturday = false
 		let isSunday = false
@@ -144,7 +150,7 @@ export default class ProPresenterController extends EventEmitter {
 
 	}
 
-
+	// Get current slide from Model and send
 	getCurrentSlide() {
 		const self = this
 		return new Promise(async resolve => {
