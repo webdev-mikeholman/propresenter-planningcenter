@@ -64,12 +64,50 @@ const post = params => {
 			})
 			resolve(data)
 		} catch (err) {
+			console.log(err)
 			console.log('Found error in post')
 			console.log(err.response.status)
 			console.log(err.response.statusText)
 			resolve({error: `${err.response.status} - ${err.response.statusText}`})
 		}
 	})
+}
+
+const update = params => {
+	return new Promise(async resolve => {
+		const appId = process.env.PLANCTRPROD_APP_ID
+		const secret = process.env.PLANCTRPROD_SECRET_KEY
+		const url = process.env.PLANCTR_BASE_URL
+		const updateParam = params.split('?')
+		const additionalParams = convertStringToObject(updateParam[1])
+		const paramsUrl = `${url}${updateParam[0]}`
+
+		try {
+			const {data} = await axios.patch(paramsUrl !== '' ? paramsUrl : url, {"data": {"attributes": additionalParams}}, {
+				auth: {
+					username: appId,
+					password: secret
+				}
+			})
+			resolve(data)
+		} catch (err) {
+			console.log(err)
+			console.log('Found error in post')
+			console.log(err.response.status)
+			console.log(err.response.statusText)
+			resolve({error: `${err.response.status} - ${err.response.statusText}`})
+		}
+	})
+}
+
+const convertStringToObject = data => {
+	let newResult = ''
+	newResult = '{"' + data.replace(/&/g, '", "')
+		.replace(/=/g, '":"') + '"}',
+		function (key, value) {
+			return key === "" ? value : decodeURIComponent(value)
+		}
+	return JSON.parse(newResult)
 }
 
 const ws = () => {
@@ -98,4 +136,4 @@ const getWebSocketUrl = () => {
 	})
 }
 
-export {requests, post, ws}
+export {requests, post, update, ws}
