@@ -48,7 +48,6 @@ export default class MasterController {
 	// Verifies there are services 'today'
 	checkSchedules() {
 		return new Promise(async resolve => {
-			const startOffset = 3 // seconds Need to subtract time to match PropPresenter
 			const ps = new PreServiceController
 			schedule.serviceTimes.find(info => {
 				if (info.day === this.dayOfWeek) {
@@ -61,19 +60,20 @@ export default class MasterController {
 				if (nextServiceTime !== undefined) {
 					const startTime = DT.fromISO(this.today + 'T' + nextServiceTime.time)
 					this.firstService = nextServiceTime.firstService
+					ps.syncCountdown()
 
 					const bandOpenerInfo = await ps.getBandOpenerInfo()
 					let bandSongLength = 0
 
 					if (bandOpenerInfo.hasOwnProperty('attributes') && bandOpenerInfo.attributes.hasOwnProperty('length')) {
-						bandSongLength = Number(bandOpenerInfo.attributes.length) + startOffset
+						bandSongLength = Number(bandOpenerInfo.attributes.length) + 2
 					}
 
 					// In console.log, shows seconds left fore going live
 					const countdown = setInterval(async () => {
 						const now = DT.now()
 						const remainingTime = startTime.diff(now)
-						//console.log(remainingTime.toFormat('mm:ss'))
+
 						if (remainingTime.toFormat('ss') === '00') {
 							console.log('Start live service')
 							clearInterval(countdown)
@@ -81,14 +81,14 @@ export default class MasterController {
 						} else if (remainingTime.toFormat('mm') == '00') {
 							console.log(remainingTime.toFormat('ss'))
 						} else {
-							if ((this.firstService || (!this.firstService && this.serviceIsOver)) && remainingTime.toFormat('mm:ss') === '30:0' + startOffset.toString()) { // change 30:00 to variable and subtract time
+							if ((this.firstService || (!this.firstService && this.serviceIsOver)) && remainingTime.toFormat('mm:ss') === '30:00') {
 								console.log('Starting Prelude')
-								this.startPreService()
+								this.startPreService(remainingTime.toFormat('ss'))
 							}
 
 							if ((this.firstService || (!this.firstService && this.serviceIsOver)) && Number(remainingTime.toFormat('mm')) < 30 && Number(remainingTime.toFormat('ss')) > bandSongLength) {
 								if (this.preserviceStarted === false) {
-									this.startPreService()
+									this.startPreService(remainingTime.toFormat('ss'))
 								}
 								console.log(remainingTime.toFormat('mm:ss'))
 							}
@@ -97,7 +97,7 @@ export default class MasterController {
 							if (bandSongLength > 0 && Number(remainingTime.toFormat('ss')) === bandSongLength) {
 								console.log('Prelude-band started')
 								console.log(remainingTime.toFormat('mm:ss'))
-								await this.startBandPrelude()
+								await this.startBandPrelude(remainingTime.toFormat('ss'))
 							}
 						}
 					}, 1000)
@@ -109,10 +109,11 @@ export default class MasterController {
 	}
 
 	// Moves Planning Center to the PreService Item
-	startPreService() {
+	startPreService(timeRemaining) {
 		return new Promise(async resolve => {
-			const ps = new PreServiceController
-			await ps.startPrelude()
+			const psc = new PreServiceController
+			await psc.syncCountdown(timeRemaining - 5)
+			await psc.startPrelude()
 			this.preserviceStarted = true;
 			resolve(true)
 		})
@@ -166,7 +167,7 @@ async function init() {
 	const mc = new MasterController
 
 	// Used for testing
-	mc.checkSchedules()
+	// mc.checkSchedules()
 	//mc.startLiveService()
 }
 

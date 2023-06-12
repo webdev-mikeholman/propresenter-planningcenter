@@ -65,6 +65,14 @@ export default class PreServiceController extends PlanningCenterController {
 		})
 	}
 
+	syncCountdown(remainingTime = 1800) {
+		const self = this
+		return new Promise(async resolve => {
+			await self.pcm.setCountdown(remainingTime)
+			resolve(true)
+		})
+	}
+
 	startPrelude() {
 		const self = this
 		return new Promise(async resolve => {
@@ -100,4 +108,4 @@ async function init() {
 }
 
 // Used for testing
-// init()
+//init()

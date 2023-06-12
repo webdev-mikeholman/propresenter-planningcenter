@@ -7,7 +7,7 @@
  * Copyright (c) 2023
  */
 
-import {requests, post} from '../../util/requests.js'
+import {requests, post, update} from '../../util/requests.js'
 import dotenv from 'dotenv'
 dotenv.config({'path': '../../../.env'})
 
@@ -178,6 +178,21 @@ export default class PlanningCenterModel {
 		})
 	}
 
+	setCountdown(lengthOfTimeInSeconds) {
+		const self = this
+		return new Promise(async resolve => {
+			if (self.serviceId === 0) {
+				await self.getServiceId()
+			}
+			if (self.planId === 0) {
+				await self.getPlanId()
+			}
+
+			await update(`/${self.serviceId}/plans/${self.planId}/items/864883373?length=${lengthOfTimeInSeconds}`)
+			resolve(true)
+		})
+	}
+
 	//Retrieves the current item ID
 	getCurrentItemId() {
 		const self = this
@@ -202,10 +217,12 @@ export default class PlanningCenterModel {
 
 
 async function init() {
-	const pc = new PlanningCenterModel()
-	serviceId = await pc.getServiceId()
-	planId = await pc.getPlanId()
-	await pc.getCurrentItemId()
+	// const pcm = new PlanningCenterModel()
+	// serviceId = await pcm.getServiceId()
+	// planId = await pcm.getPlanId()
+	// await pcm.setAPIUser()
+	// await pcm.getFullList()
+	// await pcm.setCountdown()
 }
 
 // Used for testing
