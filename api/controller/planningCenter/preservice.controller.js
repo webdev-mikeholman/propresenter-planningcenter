@@ -9,6 +9,7 @@
 
 import PlanningCenterModel from '../../model/planningCenter/planningCenter.model.js'
 import PlanningCenterController from './planningCenter.controller.js'
+import {ProPresenterModel} from '../../model/proPresenter/proPresenter.model.js'
 const pcm = {}
 
 export default class PreServiceController extends PlanningCenterController {
@@ -16,6 +17,7 @@ export default class PreServiceController extends PlanningCenterController {
 	constructor() {
 		super()
 		this.pcm = new PlanningCenterModel
+		this.ppm = new ProPresenterModel
 	}
 
 	getPreludeId() {

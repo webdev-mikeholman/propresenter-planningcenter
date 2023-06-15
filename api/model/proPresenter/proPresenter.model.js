@@ -81,6 +81,58 @@ export class ProPresenterModel extends EventEmitter {
 		})
 	}
 
+	getActiveClockId() {
+		return new Promise(async resolve => {
+			let arrayKey = -1
+			if (typeof this.propData === 'undefined' || this.propData.readyState !== this.propData.OPEN) {
+				await this.init()
+			}
+			this.propData.send(
+				JSON.stringify({
+					action: 'clockRequest'
+				})
+			)
+			this.propData.on('message', async message => {
+				let data = JSON.parse(message)
+				let count = 0
+				if (data.clockInfo !== undefined) {
+					const result = data.clockInfo.filter(clock => {
+						if (clock.clockState) {
+							arrayKey = count
+						}
+						count++
+					})
+				}
+				if (arrayKey > -1) {
+					resolve(arrayKey)
+				}
+			})
+
+		})
+	}
+
+	getCurrentRemainingTime() {
+		return new Promise(async resolve => {
+			let remainingTime = ''
+			let key = await this.getActiveClockId()
+
+			if (typeof this.propData === 'undefined' || this.propData.readyState !== this.propData.OPEN) {
+				await this.init()
+			}
+			this.propData.send(
+				JSON.stringify({
+					action: 'clockStartSendingCurrentTime'
+				})
+			)
+			this.propData.on('message', async message => {
+				let data = JSON.parse(message)
+				if (data.clockTimes !== undefined) {
+					emit("clock", data.clockTimes[key])
+				}
+			})
+		})
+	}
+
 	init() {
 		const self = this
 		return new Promise(async resolve => {
@@ -110,6 +162,10 @@ async function init() {
 	//await prop.init()
 
 	//await prop.getCurrentSlide()
+
+	//console.log(await prop.getCurrentRemainingTime())
+
+	//await prop.getActiveClockId()
 }
 
 
