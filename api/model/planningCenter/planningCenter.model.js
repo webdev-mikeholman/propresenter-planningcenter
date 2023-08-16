@@ -1,16 +1,15 @@
 /**
  * Planning Center Model
  * Connecting to Planning Center to retrieve data
- * 
+ *
  * by Mike Holman
  * webdev.mikeholman@gmail.com
  * Copyright (c) 2023
  */
 
-import {requests, post, update} from '../../util/requests.js'
+import { requests, post, update } from '../../util/requests.js'
 import dotenv from 'dotenv'
-dotenv.config({'path': '../../../.env'})
-
+dotenv.config({ path: '../../../.env' })
 
 export default class PlanningCenterModel {
 	serviceId = 0
@@ -33,14 +32,14 @@ export default class PlanningCenterModel {
 	//Retrieves the next service ID based on campus name
 	getServiceId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			try {
 				const response = await requests(`?where[name]=${self.campusName}`)
 				if (response.length > 0) {
 					self.serviceId = response[0].id
 					resolve(response[0].id)
 				} else {
-					resolve({error: 'No Service ID'})
+					resolve({ error: 'No Service ID' })
 				}
 			} catch (err) {
 				console.log(err.statusText)
@@ -51,7 +50,7 @@ export default class PlanningCenterModel {
 	//Retrieves the next plan ID based on service ID
 	getPlanId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -60,7 +59,7 @@ export default class PlanningCenterModel {
 				self.planId = response[0].id
 				resolve(response[0].id)
 			} else {
-				resolve({error: 'No Plan ID'})
+				resolve({ error: 'No Plan ID' })
 			}
 		})
 	}
@@ -68,7 +67,7 @@ export default class PlanningCenterModel {
 	//Retrieves the current active user controlling live updates
 	getLiveControllerUser() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			let data = null
 			if (self.serviceId === 0) {
 				await self.getServiceId()
@@ -87,7 +86,7 @@ export default class PlanningCenterModel {
 	//Sets the live controller user to the API user
 	setAPIUser() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -99,12 +98,11 @@ export default class PlanningCenterModel {
 			if (response.data.hasOwnProperty('links') && response.data.links.controller !== null) {
 				if (response.data.relationships.controller.data.id === process.env.PLANCTR_API_ID) {
 					resolve(true)
-				}
-				else {
+				} else {
 					console.log('Need to set API user')
 				}
 			} else {
-				resolve({error: 'API user not set'})
+				resolve({ error: 'API user not set' })
 			}
 		})
 	}
@@ -112,7 +110,7 @@ export default class PlanningCenterModel {
 	//Sets the live controller user to no one
 	releaseAPIUser() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -123,7 +121,6 @@ export default class PlanningCenterModel {
 			const response = await post(`/${self.serviceId}/plans/${self.planId}/live/toggle_control?include=controller`)
 			if (response.data.hasOwnProperty('links') && response.data.links.controller === null) {
 				resolve(true)
-
 			} else {
 				self.releaseAPIUser()
 			}
@@ -133,7 +130,7 @@ export default class PlanningCenterModel {
 	//Goes to the next item
 	goToNext() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -149,7 +146,7 @@ export default class PlanningCenterModel {
 	//Goes to the previous item
 	goToPrevious() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -165,7 +162,7 @@ export default class PlanningCenterModel {
 	//Retrieves the full list of items in today's service
 	getFullList() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -180,7 +177,7 @@ export default class PlanningCenterModel {
 
 	setCountdown(lengthOfTimeInSeconds) {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -196,7 +193,7 @@ export default class PlanningCenterModel {
 	//Retrieves the current item ID
 	getCurrentItemId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.serviceId === 0) {
 				await self.getServiceId()
 			}
@@ -209,12 +206,9 @@ export default class PlanningCenterModel {
 			} catch (err) {
 				console.log(err.status)
 			}
-
 		})
 	}
-
 }
-
 
 async function init() {
 	// const pcm = new PlanningCenterModel()

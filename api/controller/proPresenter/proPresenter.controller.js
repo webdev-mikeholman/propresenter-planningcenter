@@ -1,16 +1,15 @@
 /**
  * ProPresenter Controller
  * Gets slide info from ProPresenter
- * 
+ *
  * by Mike Holman
  * webdev.mikeholman@gmail.com
  * Copyright (c) 2023
  */
 
-
-import {ProPresenterModel} from '../../model/proPresenter/proPresenter.model.js'
-import {DateTime} from 'luxon'
-import {EventEmitter} from 'events'
+import { ProPresenterModel } from '../../model/proPresenter/proPresenter.model.js'
+import { DateTime } from 'luxon'
+import { EventEmitter } from 'eventemitter3'
 const ppm = new ProPresenterModel()
 
 export default class ProPresenterController extends EventEmitter {
@@ -19,7 +18,7 @@ export default class ProPresenterController extends EventEmitter {
 	}
 	getFullPlayList() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const fullList = await ppm.getFullPlayLists()
 			resolve(fullList.playlistAll)
 		})
@@ -28,10 +27,10 @@ export default class ProPresenterController extends EventEmitter {
 	// Get the full list from Model
 	getThisWeekendPlayList() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const weekendDate = self.getDateForNextSunday()
 			const fullList = await self.getFullPlayList()
-			const weekendSongList = fullList.filter(item => {
+			const weekendSongList = fullList.filter((item) => {
 				let listName = ''
 				const dateStringCount = item.playlistName.split('-').length
 				if (dateStringCount > 3) {
@@ -51,10 +50,10 @@ export default class ProPresenterController extends EventEmitter {
 	// Get the pre service slide ID
 	getPreServiceOrderId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			let orderId = null
 			const thisWeekendPlaylist = await self.getThisWeekendPlayList()
-			thisWeekendPlaylist.playlist.filter(item => {
+			thisWeekendPlaylist.playlist.filter((item) => {
 				if (item.playlistItemName.indexOf('Pre-Service') > -1) {
 					const orderNum = item.playlistItemLocation.substring(2, item.playlistItemLocation.length)
 					orderId = orderNum
@@ -67,10 +66,10 @@ export default class ProPresenterController extends EventEmitter {
 	// Get the post service slide ID
 	getPostServiceOrderId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			let orderId = null
 			const thisWeekendPlaylist = await self.getThisWeekendPlayList()
-			thisWeekendPlaylist.playlist.filter(item => {
+			thisWeekendPlaylist.playlist.filter((item) => {
 				if (item.playlistItemName.indexOf('Post-Service') > -1) {
 					const orderNum = item.playlistItemLocation.substring(2, item.playlistItemLocation.length)
 					orderId = orderNum
@@ -83,12 +82,11 @@ export default class ProPresenterController extends EventEmitter {
 	// Get song title of the first song
 	getFirstSongTitle() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			try {
 				let songName = null
 				const thisWeekendPlaylist = await self.getThisWeekendPlayList()
-				thisWeekendPlaylist.playlist.filter(item => {
-
+				thisWeekendPlaylist.playlist.filter((item) => {
 					if (item.playlistItemLocation === '0:1') {
 						songName = item.playlistItemName?.substring(0, item.playlistItemName.indexOf('-'))
 					}
@@ -108,19 +106,18 @@ export default class ProPresenterController extends EventEmitter {
 		const today = DateTime.now().toFormat('d')
 		if (today === 6) {
 			isSaturday = true
-		}
-		else if (today === 7) {
+		} else if (today === 7) {
 			isSunday = true
 		}
 
 		if (!isSaturday && !isSunday) {
-			saturdayDate = DateTime.now().plus({days: 6 - today}).toFormat('y-MM-dd')
-		}
-		else if (isSaturday) {
+			saturdayDate = DateTime.now()
+				.plus({ days: 6 - today })
+				.toFormat('y-MM-dd')
+		} else if (isSaturday) {
 			saturdayDate = DateTime.now().toFormat('y-MM-dd')
-		}
-		else if (isSunday) {
-			saturdayDate = DateTime.now().plus({days: 6}).toFormat('y-MM-dd')
+		} else if (isSunday) {
+			saturdayDate = DateTime.now().plus({ days: 6 }).toFormat('y-MM-dd')
 		}
 
 		return saturdayDate
@@ -134,26 +131,25 @@ export default class ProPresenterController extends EventEmitter {
 		const today = DateTime.now().toFormat('c')
 		if (today === 6) {
 			isSaturday = true
-		}
-		else if (today === 7) {
+		} else if (today === 7) {
 			isSunday = true
 		}
 
 		if (!isSaturday && !isSunday) {
-			sundayDate = DateTime.now().plus({days: 7 - today}).toFormat('y-MM-dd')
-		}
-		else if (isSunday) {
+			sundayDate = DateTime.now()
+				.plus({ days: 7 - today })
+				.toFormat('y-MM-dd')
+		} else if (isSunday) {
 			sundayDate = DateTime.now().toFormat('y-MM-dd')
 		}
 
 		return sundayDate
-
 	}
 
 	// Get current slide from Model and send
 	getCurrentSlide() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			await ppm.getCurrentSlide()
 			ppm.on('newSlides', (slide) => {
 				if (slide.hasOwnProperty('slideIndex')) {
@@ -163,7 +159,6 @@ export default class ProPresenterController extends EventEmitter {
 			resolve(true)
 		})
 	}
-
 }
 
 async function init() {

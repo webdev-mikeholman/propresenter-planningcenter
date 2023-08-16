@@ -1,14 +1,14 @@
 /**
  * Planning Center Controller
  * Gets or changes status
- * 
+ *
  * by Mike Holman
  * webdev.mikeholman@gmail.com
  * Copyright (c) 2023
  */
 
 import PlanningCenterModel from '../../model/planningCenter/planningCenter.model.js'
-import {EventEmitter} from 'events'
+import { EventEmitter } from 'eventemitter3'
 const pcm = new PlanningCenterModel()
 const ApiInControl = null
 export default class PlanningCenterController extends EventEmitter {
@@ -19,7 +19,7 @@ export default class PlanningCenterController extends EventEmitter {
 	// Get the user currently controlling the live view
 	getUserInControl() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const response = await pcm.getLiveControllerUser()
 			resolve(response)
 		})
@@ -28,7 +28,7 @@ export default class PlanningCenterController extends EventEmitter {
 	// Set the API user as the live view controller
 	setAPIControl() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const response = await pcm.setAPIUser()
 			if (response === true) {
 				self.ApiInControl = true
@@ -41,7 +41,7 @@ export default class PlanningCenterController extends EventEmitter {
 
 	// Release the API user as the live controller
 	releaseAPIControl() {
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const response = await pcm.releaseAPIUser()
 			resolve(response)
 		})
@@ -50,7 +50,7 @@ export default class PlanningCenterController extends EventEmitter {
 	// Move the planning center to the next section
 	nextItem() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.ApiInControl) {
 				const response = await pcm.goToNext()
 				resolve(true)
@@ -65,12 +65,11 @@ export default class PlanningCenterController extends EventEmitter {
 	// Move the planning center to the previous section
 	previousItem() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			if (self.ApiInControl) {
 				const response = await pcm.goToPrevious()
 				resolve(response)
-			}
-			else {
+			} else {
 				await self.setAPIControl()
 				self.previousItem()
 			}
@@ -80,17 +79,21 @@ export default class PlanningCenterController extends EventEmitter {
 	// Get the current planning center section ID
 	getCurrentItemId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			let response = null
 			await self.isApiUserInControl()
 			if (self.ApiInControl) {
 				response = await pcm.getCurrentItemId()
-				if (typeof response === 'object' && response.relationships.item.data.hasOwnProperty('id') && response.relationships.item.data.id !== null) {
+				if (
+					typeof response === 'object' &&
+					response.relationships.item.data !== null &&
+					response.relationships.item.data.hasOwnProperty('id') &&
+					response.relationships.item.data.id !== null
+				) {
 					resolve(response.relationships.item.data.id)
 				}
-			}
-			else {
-				console.log("No API control")
+			} else {
+				console.log('No API control')
 				await self.setAPIControl()
 				self.getCurrentItemId()
 			}
@@ -100,10 +103,10 @@ export default class PlanningCenterController extends EventEmitter {
 	// Get the first song ID
 	getFirstSongId(songName) {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const fullList = await pcm.getFullList()
 			let itemId = null
-			fullList.filter(item => {
+			fullList.filter((item) => {
 				if (item.attributes.title.toLowerCase() === songName.toLowerCase()) {
 					itemId = item.id
 				}
@@ -115,7 +118,7 @@ export default class PlanningCenterController extends EventEmitter {
 	// Check to see if the API user is the live controller
 	isApiUserInControl() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			try {
 				const response = await self.getUserInControl()
 				if (response === process.env.PLANCTR_API_ID) {
@@ -133,9 +136,8 @@ export default class PlanningCenterController extends EventEmitter {
 	}
 }
 
-
 async function init() {
-	const pc = new PlanningCenterController
+	const pc = new PlanningCenterController()
 	pc.setAPIControl()
 }
 

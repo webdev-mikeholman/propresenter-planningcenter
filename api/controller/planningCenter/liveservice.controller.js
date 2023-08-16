@@ -1,13 +1,13 @@
 /**
  * Live Service Controller
  * Controls Planning Center based on ProPresenter Information
- * 
+ *
  * by Mike Holman
  * webdev.mikeholman@gmail.com
  * Copyright (c) 2023
  */
 
-import {ProPresenterModel} from '../../model/proPresenter/proPresenter.model.js'
+import { ProPresenterModel } from '../../model/proPresenter/proPresenter.model.js'
 import PlanningCenterModel from '../../model/planningCenter/planningCenter.model.js'
 import PlanningCenterController from './planningCenter.controller.js'
 import ProPresenterController from '../proPresenter/proPresenter.controller.js'
@@ -25,10 +25,10 @@ export default class LiveServiceController extends PlanningCenterController {
 	// Get the ProPresenter Pre Service slide ID
 	getPreludeId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const response = await pcm.getFullList()
-			const item = response.filter(item => {
-				if ((item.attributes.title).toLowerCase().indexOf('prelude') > -1) {
+			const item = response.filter((item) => {
+				if (item.attributes.title.toLowerCase().indexOf('prelude') > -1) {
 					return item.attributes.title
 				}
 			})
@@ -39,16 +39,21 @@ export default class LiveServiceController extends PlanningCenterController {
 	// Start Live Service
 	startLiveService() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			await self.isApiUserInControl()
 			const firstProPSongTitle = await ppc.getFirstSongTitle()
+			console.log('Propresneter First title: ' + firstProPSongTitle)
 			if (firstProPSongTitle !== undefined && firstProPSongTitle !== null) {
 				const firstPlanCSongId = await self.getFirstSongId(firstProPSongTitle)
+				console.log('First Planning Center Song Id: ' + firstPlanCSongId)
 				const currentItem = await self.getCurrentItemId()
+				console.log('Current song ID: ' + currentItem)
 				if (firstPlanCSongId !== currentItem) {
-					await self.nextItem()
-					self.startLiveService()
-					resolve(true)
+					process.nextTick(async () => {
+						await self.nextItem()
+						self.startLiveService()
+						resolve(true)
+					})
 				}
 			}
 		})
@@ -58,14 +63,14 @@ export default class LiveServiceController extends PlanningCenterController {
 	watchProPresenter() {
 		const self = this
 		let currentSection = 0
-		return new Promise(async resolve => {
-			await ppc.getCurrentSlide();
+		return new Promise(async (resolve) => {
+			await ppc.getCurrentSlide()
 			const postSlideId = Number(await ppc.getPostServiceOrderId())
 			let postludeCounter = 0
 			ppc.on('newSlide', async (data) => {
 				if (data.hasOwnProperty('slideIndex')) {
 					await self.isApiUserInControl()
-					const selectionId = Number((data.presentationPath).substring(2, data.presentationPath.length))
+					const selectionId = Number(data.presentationPath.substring(2, data.presentationPath.length))
 					const slideIndex = data.slideIndex
 					console.log(`Section ${selectionId}`)
 					console.log(`Slide ${slideIndex + 1}`)
@@ -75,10 +80,10 @@ export default class LiveServiceController extends PlanningCenterController {
 					} else if (selectionId === postSlideId && slideIndex === 0) {
 						if (postludeCounter < 1) {
 							await self.nextItem()
-							console.log("Postlude")
+							console.log('Postlude')
 						} else {
 							await self.nextItem()
-							console.log("Next service")
+							console.log('Next service')
 							resolve(true)
 						}
 						postludeCounter++
@@ -91,10 +96,10 @@ export default class LiveServiceController extends PlanningCenterController {
 	// Get ProPresenter Post Service slide ID
 	getPostludeId() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			const response = await pcm.getFullList()
-			const item = response.filter(item => {
-				if ((item.attributes.title).toLowerCase().indexOf('postlude') > -1) {
+			const item = response.filter((item) => {
+				if (item.attributes.title.toLowerCase().indexOf('postlude') > -1) {
 					return item.attributes.title
 				}
 			})
@@ -105,7 +110,7 @@ export default class LiveServiceController extends PlanningCenterController {
 	// Start Pre Service countdown
 	startPrelude() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			await self.isApiUserInControl()
 			const preludeId = await self.getPreludeId()
 			const currentItemId = await pcm.getCurrentItemId()
@@ -124,19 +129,19 @@ export default class LiveServiceController extends PlanningCenterController {
 	// Start Pre Service Band Countdown
 	startBandPrelude() {
 		const self = this
-		return new Promise(async resolve => {
+		return new Promise(async (resolve) => {
 			await self.isApiUserInControl()
 			const nextItemInfo = await self.nextItem()
 			resolve(true)
 		})
 	}
-
 }
 
 async function init() {
 	const lc = new LiveServiceController()
-	lc.watchProPresenter()
+	// lc.watchProPresenter();
+	// lc.startLiveService();
 }
 
 // Used for testing
-//init()
+init()
