@@ -145,6 +145,7 @@ export class ProPresenterModel extends EventEmitter {
 						password: 'controller',
 					})
 				)
+				//console.log('Data sent')
 				self.propData.on('error', (err) => {
 					console.log('Error from WS')
 					console.error(err)

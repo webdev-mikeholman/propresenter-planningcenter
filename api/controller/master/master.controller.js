@@ -144,7 +144,7 @@ export default class MasterController {
 			const ls = new LiveServiceController()
 			console.log('Starting LiveService')
 			// Troubleshoot runaway services!!!
-			await ls.startLiveService()
+			// await ls.startLiveService()
 			console.log('Watching LiveService')
 			await ls.watchProPresenter()
 			this.serviceIsOver = true
@@ -178,7 +178,7 @@ async function init() {
 
 	// Used for testing
 	// mc.checkSchedules()
-	//mc.startLiveService()
+	// mc.startLiveService()
 }
 
 init()

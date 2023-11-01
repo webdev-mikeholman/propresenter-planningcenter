@@ -38,7 +38,6 @@ export default class ProPresenterController extends EventEmitter {
 				} else {
 					listName = item.playlistName
 				}
-
 				if (listName.indexOf(weekendDate) === 0) {
 					return item
 				}
@@ -163,8 +162,9 @@ export default class ProPresenterController extends EventEmitter {
 
 async function init() {
 	const prop = new ProPresenterController()
-	await ppm.getCurrentSlide()
+	//await ppm.getCurrentSlide()
+	await prop.getThisWeekendPlayList()
 }
 
 // Used for testing
-//init()
+init()

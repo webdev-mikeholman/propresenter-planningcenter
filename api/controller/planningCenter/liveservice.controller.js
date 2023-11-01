@@ -48,13 +48,17 @@ export default class LiveServiceController extends PlanningCenterController {
 				console.log('First Planning Center Song Id: ' + firstPlanCSongId)
 				const currentItem = await self.getCurrentItemId()
 				console.log('Current song ID: ' + currentItem)
-				if (firstPlanCSongId !== currentItem) {
-					process.nextTick(async () => {
-						await self.nextItem()
-						self.startLiveService()
-						resolve(true)
-					})
-				}
+
+				// Temp fix.
+				await self.nextItem()
+				resolve(true)
+				// if (firstPlanCSongId !== currentItem) {
+				// 	process.nextTick(async () => {
+				// 		await self.nextItem()
+				// 		self.startLiveService()
+				// 		resolve(true)
+				// 	})
+				// }
 			}
 		})
 	}
