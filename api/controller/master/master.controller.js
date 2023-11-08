@@ -70,7 +70,8 @@ export default class MasterController {
 						bandOpenerInfo.hasOwnProperty('attributes') &&
 						bandOpenerInfo.attributes.hasOwnProperty('length')
 					) {
-						bandSongLength = Number(bandOpenerInfo.attributes.length) + 2
+						bandSongLength = Number(bandOpenerInfo.attributes.length) + 19
+						console.log('Band song length: ' + bandSongLength)
 					}
 
 					// In console.log, shows seconds left fore going live
@@ -144,7 +145,7 @@ export default class MasterController {
 			const ls = new LiveServiceController()
 			console.log('Starting LiveService')
 			// Troubleshoot runaway services!!!
-			// await ls.startLiveService()
+			await ls.startLiveService()
 			console.log('Watching LiveService')
 			await ls.watchProPresenter()
 			this.serviceIsOver = true

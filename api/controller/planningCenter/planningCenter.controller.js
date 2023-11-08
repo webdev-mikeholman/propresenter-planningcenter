@@ -105,13 +105,12 @@ export default class PlanningCenterController extends EventEmitter {
 		const self = this
 		return new Promise(async (resolve) => {
 			const fullList = await pcm.getFullList()
-			let itemId = null
-			fullList.filter((item) => {
-				if (item.attributes.title.toLowerCase() === songName.toLowerCase()) {
-					itemId = item.id
+			let itemId = fullList.find((item) => {
+				if (item.attributes.title.toLowerCase().trim() === songName.toLowerCase().trim()) {
+					return item.id
 				}
 			})
-			resolve(itemId)
+			resolve(itemId.id)
 		})
 	}
 

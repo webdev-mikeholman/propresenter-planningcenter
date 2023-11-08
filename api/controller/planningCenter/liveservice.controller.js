@@ -42,7 +42,7 @@ export default class LiveServiceController extends PlanningCenterController {
 		return new Promise(async (resolve) => {
 			await self.isApiUserInControl()
 			const firstProPSongTitle = await ppc.getFirstSongTitle()
-			console.log('Propresneter First title: ' + firstProPSongTitle)
+			console.log('Propresenter First title: ' + firstProPSongTitle)
 			if (firstProPSongTitle !== undefined && firstProPSongTitle !== null) {
 				const firstPlanCSongId = await self.getFirstSongId(firstProPSongTitle)
 				console.log('First Planning Center Song Id: ' + firstPlanCSongId)
@@ -50,15 +50,15 @@ export default class LiveServiceController extends PlanningCenterController {
 				console.log('Current song ID: ' + currentItem)
 
 				// Temp fix.
-				await self.nextItem()
+				//await self.nextItem()
 				resolve(true)
-				// if (firstPlanCSongId !== currentItem) {
-				// 	process.nextTick(async () => {
-				// 		await self.nextItem()
-				// 		self.startLiveService()
-				// 		resolve(true)
-				// 	})
-				// }
+				if (firstPlanCSongId !== currentItem) {
+					process.nextTick(async () => {
+						await self.nextItem()
+						self.startLiveService()
+						resolve(true)
+					})
+				}
 			}
 		})
 	}

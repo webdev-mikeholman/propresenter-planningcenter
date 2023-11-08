@@ -75,6 +75,8 @@ export default class PlanningCenterModel {
 			if (self.planId === 0) {
 				await self.getPlanId()
 			}
+			// console.log('Service ID: ' + self.serviceId)
+			// console.log('Plan ID: ' + self.planId)
 			const response = await requests(`/${self.serviceId}/plans/${self.planId}/live?include=controller`)
 			if (response.hasOwnProperty('links') && response.relationships.controller.data !== undefined && response.relationships.controller.data !== null) {
 				data = response.relationships.controller.data.id

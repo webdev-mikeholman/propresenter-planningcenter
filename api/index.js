@@ -4,7 +4,7 @@ import {fork} from 'child_process'
 let newPID = 0;
 let oldPID;
 function init() {
-	if (cluster.isMaster) {
+	if (cluster.isPrimary) {
 		let worker = cluster.fork();
 		newPID = worker.process.pid;
 		console.log('worker ' + newPID + ' born.');
@@ -15,6 +15,9 @@ function init() {
 
 			oldPID = deadWorker.process.pid;
 
+			if (newPID === oldPID) {
+				worker.kill()
+			}
 			console.log('worker ' + oldPID + ' died.');
 			console.log('worker ' + newPID + ' born.');
 		});
